@@ -2,7 +2,7 @@
 
 Este repositório contém materiais e exemplos relacionados à aula sobre Inteligência Artificial Conversacional no WhatsApp, ministrada por Guilherme Jansen.
 
-![Imagem Exemplo](URL_DA_IMAGEM_AQUI)
+![n8n](https://s3.setupautomatizado.com.br/typebot/public/workspaces/cls6kc4by0001dk2z78nks8fm/typebots/cls6lny9k0001hw5zglvn3j0r/blocks/wg2ogsbqafmj7wb5a23057ec?v=1709828385103)
 
 ## Conteúdo da Aula
 
