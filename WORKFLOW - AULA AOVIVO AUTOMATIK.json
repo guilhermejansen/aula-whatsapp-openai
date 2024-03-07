@@ -1,0 +1,1413 @@
+{
+  "name": "AULA AOVIVO AUTOMATIK",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "cd62e285-5e04-43a3-a2e4-614034b92175",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        480,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "fcad0ce9-cd23-472b-bf14-2e833b0e1d99",
+              "leftValue": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.key.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "67e88cde-d795-455e-a593-5d9a55d466bb",
+              "leftValue": "={{ $json.content.data.key.remoteJid }}",
+              "rightValue": "status@broadcast",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3b35699b-f34f-4830-8864-6371fac9edfd",
+      "name": "If - FORMME TRUE",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        480,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.apikey }}"
+            },
+            {
+              "name": "OpenAI-Beta",
+              "value": "assistants=v1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9edfeda7-4bec-4fe1-b1f0-2536ad63cfbe",
+      "name": "HTTP Request - CRIAR THREAD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1840,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.openai.com/v1/threads/{{ $json.id }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json.apikey }}"
+            },
+            {
+              "name": "OpenAI-Beta",
+              "value": "assistants=v1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n      \"role\": \"user\",\n      \"content\": \"Meu nome é {{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json[\"pushName\"].split(' ')[0] }}, {{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json[\"conversa\"] }}{{ $json[\"primeira_mensagem\"] }}\"\n}",
+        "options": {}
+      },
+      "id": "e0b31a94-b677-4d1e-9ed4-6d0fa53f2a91",
+      "name": "HTTP Request - CRIE MENSAGEM COM  THREAD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2080,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.openai.com/v1/threads/{{ $json.thread_id }}/runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json.apikey }}"
+            },
+            {
+              "name": "OpenAI-Beta",
+              "value": "assistants=v1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "assistant_id",
+              "value": "={{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json.assistants_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5b9423d5-f483-4bce-afab-bee3a0350659",
+      "name": "HTTP Request - CRIAR RUN DO ASSISTANTS COM THREAD",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2280,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.openai.com/v1/threads/{{ $json.thread_id }}/runs/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json.apikey }}"
+            },
+            {
+              "name": "OpenAI-Beta",
+              "value": "assistants=v1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f13b086-b1f8-41b6-bf25-a0004c0aaa82",
+      "name": "HTTP Request - VERIFICAR STATUS DA MENSAGEM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        2460,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.openai.com/v1/threads/{{ $json.thread_id }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json.apikey }}"
+            },
+            {
+              "name": "OpenAI-Beta",
+              "value": "assistants=v1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d065278d-ce25-457c-b59b-0c101aece275",
+      "name": "HTTP Request - MENSAGEM PRONTA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        3140,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "resposta",
+              "stringValue": "Houve uma falha no meu atendimento, poderia perguntar novamente, por favor!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa47165f-6790-4553-8a68-1689192f553c",
+      "name": "Edit Fields - MENSAGEM DE FALHA",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        3300,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "queue": "5521979232690.messages.upsert-dlx",
+        "options": {
+          "arguments": {
+            "argument": [
+              {
+                "key": "x-queue-type",
+                "value": "quorum"
+              }
+            ]
+          }
+        }
+      },
+      "id": "549eccc1-f2db-4bee-a6d7-ec4162e674d9",
+      "name": "RabbitMQ - DLX",
+      "type": "n8n-nodes-base.rabbitmq",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        740
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "t5nIYgdQPsiQy9sL",
+          "name": "RabbitMQ account - SETUP AUTOMATIZADO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## DLX RABBITMQ!\n\n- solução completa na promovaweb.\n\n- https://go.hotmart.com/J88615002B",
+        "height": 522.7253719340571,
+        "width": 277.383922078638
+      },
+      "id": "ff0a3f15-58a3-4f78-9feb-108580d0d4bf",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## SALVAR SESSÃOS DO REMOTEJID + TRHEAD_ID NO SHEETS!",
+        "height": 525.2846803377564,
+        "width": 625.6399953453665
+      },
+      "id": "a028b519-b855-40fe-8f4c-d2acffe140e1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        940,
+        378
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "pushName",
+              "stringValue": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.pushName }}"
+            },
+            {
+              "name": "remoteJid",
+              "stringValue": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.key.remoteJid }}"
+            },
+            {
+              "name": "conversa",
+              "stringValue": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.message.conversation }}"
+            },
+            {
+              "name": "apikey",
+              "stringValue": "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"
+            },
+            {
+              "name": "assistants_id",
+              "stringValue": "asst_2YvgyjB1h7dtIgYOj88lJSID"
+            },
+            {
+              "name": "=thread_id",
+              "stringValue": "={{ $('Google Sheets - BUSCAR REMOTEJID').item.json.THREAD_ID }}"
+            },
+            {
+              "name": "primeira_mensagem",
+              "stringValue": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.message.extendedTextMessage.text }}"
+            }
+          ]
+        },
+        "include": "none",
+        "options": {}
+      },
+      "id": "1da0be08-5402-44a7-a84c-a8d551898e86",
+      "name": "Edit Fields - INFORMAÇÕES GERAIS",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        1400,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## VERIFICAÇÃO DO FORMME E BROADCAST",
+        "height": 522.7253719340571,
+        "width": 279.7839220786379
+      },
+      "id": "b20cd7ea-1d13-4e49-b71b-2b8bb5af63c8",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        380,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## VERIFICAR SE TRHEAD_ID EXISTE NO SHEETS!",
+        "height": 525.2846803377562,
+        "width": 674.537031507987
+      },
+      "id": "c96db592-dfb4-441b-9d45-ba0e74d504d3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1567.3876441751358,
+        378.05963756540564
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## LÓGICA DO USO DO ASSISTANTS!",
+        "height": 525.6141653132233,
+        "width": 1352.135303406872
+      },
+      "id": "6ccae4c9-2678-44af-9035-70b41ed7e84a",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2242.5678202054823,
+        377.5096886007832
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## LIMPAR RESPOSTA E ENVIAR PARA O WHATSAPP!",
+        "height": 526.1414829949268,
+        "width": 371.0132518433324
+      },
+      "id": "0a094aa5-75b7-4859-b84b-2a9b81877072",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3594,
+        377
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## EVENTOS MESSAGE_UPSERT WHATSAPP!",
+        "height": 524.0861315342248,
+        "width": 165.74438906979526
+      },
+      "id": "f2ece912-f6e9-4de6-a03b-4ec4cdaa980c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        215,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "queue": "5521979232690.messages.upsert",
+        "options": {
+          "arguments": {
+            "argument": [
+              {
+                "key": "x-queue-type",
+                "value": "quorum"
+              }
+            ]
+          },
+          "acknowledge": "executionFinishesSuccessfully",
+          "jsonParseBody": true
+        }
+      },
+      "id": "8428f9ae-2a00-4012-9aba-4c8a3ae41354",
+      "name": "RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP",
+      "type": "n8n-nodes-base.rabbitmqTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        540
+      ],
+      "credentials": {
+        "rabbitmq": {
+          "id": "t5nIYgdQPsiQy9sL",
+          "name": "RabbitMQ account - SETUP AUTOMATIZADO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "df4386ee-7c8d-435a-a11c-1460b446c5e2",
+              "leftValue": "={{ $json.properties.headers[\"x-delivery-count\"] }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0313b9a3-db6a-4899-8030-659cecbc97fe",
+      "name": "If - VERIFICAR SE JA PASSOU +2 VEZES NO FLUXO",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        720,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg",
+          "mode": "list",
+          "cachedResultName": "AULA AOVIVO AUTOMATIK",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "REMOTEJID",
+              "lookupValue": "={{ $json.content.data.key.remoteJid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "61be069c-2f3b-48ff-88dd-f2c8af257de6",
+      "name": "Google Sheets - BUSCAR REMOTEJID",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        580
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sQtFiBNZUIC0SQzR",
+          "name": "Google Sheets account - SETUP AUTOMATIZADO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "fbd88576-c7d4-4985-9dbf-cd8f73eae39f",
+              "leftValue": "={{$json}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a037c2ff-9845-4351-bc04-f3e71a375337",
+      "name": "If - VERFICAR SE EXISTE UM REMOTEJID",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg",
+          "mode": "list",
+          "cachedResultName": "AULA AOVIVO AUTOMATIK",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "REMOTEJID": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.key.remoteJid }}"
+          },
+          "matchingColumns": [
+            "REMOTEJID"
+          ],
+          "schema": [
+            {
+              "id": "REMOTEJID",
+              "displayName": "REMOTEJID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "THREAD_ID",
+              "displayName": "THREAD_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fd22fb78-c410-4f99-ba74-3c0f7a6659a9",
+      "name": "Google Sheets - ADICIONAR O REMOTEJID",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        420
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sQtFiBNZUIC0SQzR",
+          "name": "Google Sheets account - SETUP AUTOMATIZADO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "5999bb92-d4ac-40ab-9e16-af129343f1c9",
+              "leftValue": "={{ $json.thread_id }}",
+              "rightValue": "thread",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f0b3318b-d361-47f7-ab78-9633d4f979d2",
+      "name": "If - VERIFICAR SE EXISTE THREAD_ID",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg",
+          "mode": "list",
+          "cachedResultName": "AULA AOVIVO AUTOMATIK",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14EpjadiBxsFjQXY2HI4NbhXzXbjJDVScAr64zrkXWdg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "REMOTEJID": "={{ $('RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP').item.json.content.data.key.remoteJid }}",
+            "THREAD_ID": "={{ $json.id }}"
+          },
+          "matchingColumns": [
+            "REMOTEJID"
+          ],
+          "schema": [
+            {
+              "id": "REMOTEJID",
+              "displayName": "REMOTEJID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "THREAD_ID",
+              "displayName": "THREAD_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "859354c9-7219-442f-9cbd-e5288d8da03c",
+      "name": "Google Sheets - ADICIONAR THREAD_ID",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        460
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sQtFiBNZUIC0SQzR",
+          "name": "Google Sheets account - SETUP AUTOMATIZADO"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "thread_id",
+              "newKey": "id"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "id": "882e252c-346d-4f62-84ca-f803f24d5baa",
+      "name": "Rename Keys - RENOMEAR PARA ID",
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "unit": "seconds"
+      },
+      "id": "c963c0de-fe2c-4f06-aaec-cdc05a5ad8b2",
+      "name": "Wait - EVITAR RATE LIMITE",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        440
+      ],
+      "webhookId": "3299fc10-3881-4065-85d0-bd8552e51cd8"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "completed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "completed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "335a3ec5-99b3-4eb3-80fb-ff33c0bf63ad",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "queued",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "queued"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "b68d5026-da02-42ac-b2d9-ce9467650ae3",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "in_progress",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "in_progress"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "806518e1-e56d-4fd1-9585-544fb42f4362",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "expired",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "expired"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "cc0cf19f-c2b8-48be-9689-325147c97511",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "cancelling",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cancelling"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "b3fdcf7e-6a99-4a92-ab94-484df4d77723",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "cancelled",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cancelled"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "de17b976-10f6-48dc-bf35-e6d967c1b68a",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d41c40e0-6bcb-494a-9e97-e52d887c1426",
+      "name": "Switch - VERIFICAR STATUS DE RESPOSTA",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        2640,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "15b22fea-1917-4068-a4a9-d42ef7351eb5",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1507a983-81cf-426a-b15d-811650da75f0",
+      "name": "If - VERIFICAR SE ESTA COMPLETO",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2920,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "resposta",
+              "stringValue": "={{ $json.data[0].content[0].text.value }}"
+            },
+            {
+              "name": "pergunta",
+              "stringValue": "={{ $json.data[1].content[0].text.value }}"
+            },
+            {
+              "name": "thread_id",
+              "stringValue": "={{ $json.data[0].thread_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8bab6351-f167-4800-812f-a9b59b0d0f4a",
+      "name": "Edit Fields - INFORMAÇÕES DO RESULTADO",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        3300,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = items[0].json[\"resposta\"];\n\nconst result = inputData\n  .replace(/\\n/g, '\\\\n')\n  .replace(/\"/g, '')\n  .replace(/【\\d+†[^\\】]+】/g, '');\n\nreturn [{json: { \"resposta\": result }}];"
+      },
+      "id": "45469247-6922-476a-b174-350d56c0eb86",
+      "name": "Code - LIMPEZA DA RESPOSTA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://dev.setupautomatizado.com.br/message/sendText/5521979232690",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "gol6z2w361n6h5rkgx4lf6"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"number\": \"{{ $('Edit Fields - INFORMAÇÕES GERAIS').item.json[\"remoteJid\"] }}\",\n    \"options\": {\n        \"delay\": 2000,\n        \"presence\": \"composing\",\n        \"linkPreview\": false\n    },\n    \"textMessage\": {\n        \"text\": \"{{ $json[\"resposta\"] }}\"\n    }\n}",
+        "options": {}
+      },
+      "id": "59061e8a-ac92-44b3-9499-5039b0ddec45",
+      "name": "HTTP Request - ENVIO PARA O WHATSAPP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        3800,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# PRECISA DE ALGO MAIS AVANÇADO E EXPECÍFICO ME CHAMA PARA CONVERSAR!\n# https://linktr.ee/guilhermejansenoficial",
+        "height": 172.39286391501335,
+        "width": 1435.0261632334336
+      },
+      "id": "6cb10e47-14d1-46dd-8e34-463323edac53",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        220,
+        200
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If - FORMME TRUE": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If - VERIFICAR SE JA PASSOU +2 VEZES NO FLUXO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - CRIAR THREAD": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - CRIE MENSAGEM COM  THREAD",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - ADICIONAR THREAD_ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - CRIE MENSAGEM COM  THREAD": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - CRIAR RUN DO ASSISTANTS COM THREAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - CRIAR RUN DO ASSISTANTS COM THREAD": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - VERIFICAR STATUS DA MENSAGEM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - VERIFICAR STATUS DA MENSAGEM": {
+      "main": [
+        [
+          {
+            "node": "Switch - VERIFICAR STATUS DE RESPOSTA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - MENSAGEM PRONTA": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - INFORMAÇÕES DO RESULTADO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - MENSAGEM DE FALHA": {
+      "main": [
+        [
+          {
+            "node": "Code - LIMPEZA DA RESPOSTA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - INFORMAÇÕES GERAIS": {
+      "main": [
+        [
+          {
+            "node": "If - VERIFICAR SE EXISTE THREAD_ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RabbitMQ Trigger - EVENTOS DA API DO WHATSAPP": {
+      "main": [
+        [
+          {
+            "node": "If - FORMME TRUE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - VERIFICAR SE JA PASSOU +2 VEZES NO FLUXO": {
+      "main": [
+        [
+          {
+            "node": "RabbitMQ - DLX",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets - BUSCAR REMOTEJID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - BUSCAR REMOTEJID": {
+      "main": [
+        [
+          {
+            "node": "If - VERFICAR SE EXISTE UM REMOTEJID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - VERFICAR SE EXISTE UM REMOTEJID": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - ADICIONAR O REMOTEJID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields - INFORMAÇÕES GERAIS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - ADICIONAR O REMOTEJID": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields - INFORMAÇÕES GERAIS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - VERIFICAR SE EXISTE THREAD_ID": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys - RENOMEAR PARA ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - CRIAR THREAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys - RENOMEAR PARA ID": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - CRIE MENSAGEM COM  THREAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - EVITAR RATE LIMITE": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - VERIFICAR STATUS DA MENSAGEM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - VERIFICAR STATUS DE RESPOSTA": {
+      "main": [
+        [
+          {
+            "node": "If - VERIFICAR SE ESTA COMPLETO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If - VERIFICAR SE ESTA COMPLETO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If - VERIFICAR SE ESTA COMPLETO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields - MENSAGEM DE FALHA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields - MENSAGEM DE FALHA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields - MENSAGEM DE FALHA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields - MENSAGEM DE FALHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - VERIFICAR SE ESTA COMPLETO": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - MENSAGEM PRONTA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait - EVITAR RATE LIMITE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields - INFORMAÇÕES DO RESULTADO": {
+      "main": [
+        [
+          {
+            "node": "Code - LIMPEZA DA RESPOSTA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - LIMPEZA DA RESPOSTA": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - ENVIO PARA O WHATSAPP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ae41ee76-7bbf-4508-9118-6c4605587060",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0c4b595406290e8203112b621f4afd3211b5bc61198ded8bfea396e3376a226a"
+  },
+  "id": "b2A0YuRuHIndUt07",
+  "tags": [
+    {
+      "createdAt": "2024-02-07T10:05:23.565Z",
+      "updatedAt": "2024-02-07T10:05:23.565Z",
+      "id": "A19hcwh5F2Jm7BAk",
+      "name": "n8n"
+    },
+    {
+      "createdAt": "2024-02-07T10:05:30.364Z",
+      "updatedAt": "2024-02-07T10:05:30.364Z",
+      "id": "Wta5w9BvmUrZR85z",
+      "name": "EvolutionAPI"
+    },
+    {
+      "createdAt": "2024-02-07T10:05:48.984Z",
+      "updatedAt": "2024-02-07T10:05:48.984Z",
+      "id": "i9dFN05LW0BzBxCw",
+      "name": "OpenAI"
+    },
+    {
+      "createdAt": "2023-10-22T03:46:02.047Z",
+      "updatedAt": "2023-10-22T03:46:02.047Z",
+      "id": "C7zp0T5JClc0Dnv0",
+      "name": "RabbitMQ"
+    }
+  ]
+}
