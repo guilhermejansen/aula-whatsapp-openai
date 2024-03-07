@@ -2,7 +2,7 @@
 
 Este repositório contém materiais e exemplos relacionados à aula sobre Inteligência Artificial Conversacional no WhatsApp, ministrada por Guilherme Jansen.
 
-![n8n](https://s3.setupautomatizado.com.br/typebot/public/workspaces/cls6kc4by0001dk2z78nks8fm/typebots/cls6lny9k0001hw5zglvn3j0r/blocks/wg2ogsbqafmj7wb5a23057ec?v=1709828385103)
+![n8n](https://s3.setupautomatizado.com.br/typebot/public/workspaces/cls6kc4by0001dk2z78nks8fm/typebots/cls6lny9k0001hw5zglvn3j0r/blocks/t6xoqa9s15gqwlrl6pfxyrm6?v=1709830460096)
 
 ## Conteúdo da Aula
 
@@ -17,8 +17,19 @@ Este repositório contém materiais e exemplos relacionados à aula sobre Inteli
 
 - [Mapa Mental](https://whimsical.com/inteligencia-artificial-conversacional-no-whatsapp-mapa-mental-SBtvzmgA245qtpHbA1K8Wp)
 - [Aula no YouTube](https://www.youtube.com/live/EkTm75uNoaE?si=EtyUnYx-45MHzN_j)
-
+- [Universidade Promovaweb](https://go.hotmart.com/J88615002B)
 ---
+<div align="right">
+  
+![](https://komarev.com/ghpvc/?username=guilhermejansen&color=006bed)
+[![GitHub](https://img.shields.io/github/followers/guilhermejansen?label=follow&style=social)](https://github.com/guilhermejansen)
+</div>
+<div align="center">
+  
+# Olá, eu sou Guilherme Jansen! 👋 <br> Full Stack Developer | DevOps | Automation Specialist | AI Expert
+<br>
+Sou apaixonado por tecnologia e inovação, atuando como Desenvolvedor Web Full Stack. Minha experiência abrange desde a criação de soluções digitais robustas e modernas até a otimização de interfaces responsivas centradas no usuário.
+</div>
 
 <div align="center">
   <h3>🌟 UM BÔNUS EXCLUSIVO PARA VOCÊ! 🌟</h3>
