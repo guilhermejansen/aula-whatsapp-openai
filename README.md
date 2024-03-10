@@ -17,6 +17,7 @@ Este repositório contém materiais e exemplos relacionados à aula sobre Inteli
 
 - [Mapa Mental](https://whimsical.com/inteligencia-artificial-conversacional-no-whatsapp-mapa-mental-SBtvzmgA245qtpHbA1K8Wp)
 - [Aula no YouTube](https://www.youtube.com/live/EkTm75uNoaE?si=EtyUnYx-45MHzN_j)
+- [Versão Avançada no meu Canal](https://youtu.be/jzMfVkRyoUs)
 - [Universidade Promovaweb](https://go.hotmart.com/J88615002B)
 ---
 <div align="right">
