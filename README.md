@@ -105,3 +105,12 @@ Sou apaixonado por tecnologia e inovação, atuando como Desenvolvedor Web Full 
   </a>
 </div>
 <br>
+<div align="center">
+    <a href="https://www.paypal.com/ncp/payment/K7YAM48FD4Y3Y" target="_blank">
+        <img src="https://www.paypalobjects.com/pt_BR/BR/i/btn/btn_donateCC_LG.gif" border="0" alt="Donate with PayPal">
+    </a>
+    <br>
+    <a href="https://www.paypal.com/ncp/payment/K7YAM48FD4Y3Y" target="_blank">
+        <img src="https://github.com/guilhermejansen/whaticket_deep_cleaning/raw/main/coffee-qrcode.png" alt="Coffee QR Code">
+    </a>
+</div>
